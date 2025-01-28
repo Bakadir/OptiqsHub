@@ -29,7 +29,9 @@ import time
 from PIL import Image
 import numpy as np
 from pathlib import Path
-
+import os
+import shutil
+from django.core.files import File
 def ApertureFromImage(image_path, Nx, Ny):
     """
     Resizes an image to fit within an aperture of a given size and inserts it into a black screen
@@ -511,9 +513,16 @@ def home(request):
                     shutil.copy(f'static/{gif_file_path_rgb_sim}', f'staticfiles/{gif_file_path_rgb_sim}')
                     shutil.copy(f'static/{gif_file_path_intensity_sim}', f'staticfiles/{gif_file_path_intensity_sim}')
 
+                    with open(gif_file_path_rgb, 'rb') as f_rgb:
+                        simulation_result.rgb_animation_path.save(gif_file_path_rgb_sim, File(f_rgb), save=True)
+
+                    with open(gif_file_path_intensity, 'rb') as f_intensity:
+                        simulation_result.intensity_animation_path.save(gif_file_path_intensity_sim, File(f_intensity), save=True)
+
+
                     # Save the relative paths to the model
-                    simulation_result.rgb_animation_path = gif_file_path_rgb_sim
-                    simulation_result.intensity_animation_path = gif_file_path_intensity_sim
+                    #simulation_result.rgb_animation_path = gif_file_path_rgb_sim
+                    #simulation_result.intensity_animation_path = gif_file_path_intensity_sim
 
                     # Save the simulation result instance
                     simulation_result.save()
