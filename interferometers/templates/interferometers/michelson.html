@@ -1,0 +1,125 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+
+
+<title>{% block title %}Michelson Interferometer{% endblock %}</title>
+<section id="starter-section" class="starter-section section">
+
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ matrix_formset.management_form }}
+            <p class="main-title">
+                <a href="https://en.wikipedia.org/wiki/Michelson_interferometer" target="_blank">
+                    Michelson Interferometer
+                    </a>
+
+                
+             </p>
+           
+            <div class="row">
+                <!-- Left Column: Light Source -->
+                <div class="col" style="flex: 0 0 26%; max-width: 26%;">
+                    <div class="title">
+                        Light Source
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Wavelength (nm)</th>
+                                <th>Intensity</th>
+                            </tr>
+                            <tr>
+                                <td>{{ form.wavelength }}</td>
+                                <td>{{ form.intensity }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-danger" type="submit" name="delete_matrix">-</button>
+                        <button class="btn btn-success" type="submit" name="add_matrix">+</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Arm and Distance Parameters -->
+                <div class="col" style="flex: 0 0 74%; max-width: 74%;">
+                    <div class="title">
+                        Arm Parameters
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>OM<sub>1</sub> (cm)</th>
+                                <th>OM<sub>2</sub> (cm)</th>
+                                <th>OS<sub>source</sub> (cm)</th>
+                                <th>OS<sub>screen</sub> (cm)</th>
+                                <th>M<sub>1</sub> Tilt (mrad)</th>
+                                <th>M<sub>2</sub> Tilt (mrad)</th>
+                            </tr>
+                            <tr>
+                                <td>{{ form.arm1_length }}</td>
+                                <td>{{ form.arm2_length }}</td>
+                                <td>{{ form.laser_to_beamsplitter }}</td>
+                                <td>{{ form.beamsplitter_to_screen }}</td>
+                                <td>{{ form.tilt_x }}</td>
+                                <td>{{ form.tilt_y }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Row: Mirror Tilts -->
+            <div class="row">
+                <div class="col" style="flex: 0 0 29.167%; max-width: 29.167%;">
+                    <div class="title">
+                        {{ form.add_plate }} Add Compensating Plate
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Plate Thickness (cm)</th>
+                                <th>Refractive Index</th>
+                            </tr>
+                            <tr>
+                                <td>{{ form.plate_thickness }}</td>
+                                <td>{{ form.plate_refractive_real }} + j{{ form.plate_refractive_imag }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column: Grid Size & Resolution -->
+                <div class="col" style="flex: 0 0 70.833%; max-width: 70.833%;">
+                    <div class="title">
+                        Grid Parameters
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Grid Size (mm)</th>
+                                <th>Grid Resolution</th>
+                            </tr>
+                            <tr>
+                                <td>{{ form.grid_size }}</td>
+                                <td>{{ form.resolution }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Simulate</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+
+
+{% endblock %}

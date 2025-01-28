@@ -1,0 +1,360 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+<title>{% block title %}NLSE{% endblock %}</title>
+
+<section id="starter-section" class="starter-section section">
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+            <p class="main-title">
+                Solving the <a href="https://en.wikipedia.org/wiki/Nonlinear_Schr%C3%B6dinger_equation" target="_blank">Nonlinear Schrödinger Equation</a> 
+                using the <a href="https://en.wikipedia.org/wiki/Split-step_method" target="_blank">Split-Step Fourier Method</a> to model pulses through an optical fiber
+            </p>
+            <div style="text-align: center;font-size: 24px;">
+                \( \frac{\partial A}{\partial z} = -\frac{\alpha}{2} A - i\frac{\beta}{2} \frac{\partial^2 A}{\partial T^2} + i\gamma |A|^2 A \)
+            </div>
+                
+            
+            <div class="row">
+                <p>
+                    This nonlinear partial differential equation models how the envelope and phase of light pulse changes when propagating through an optical fiber, 
+                    when taking power attenuation <strong>&alpha;</strong>, Group Velocity Dispersion <strong>&beta; </strong>
+                    and waveguide nonlinearity <strong>&gamma;</strong> causing Self-Phase Modulation (SPM) into account.
+                </p>
+
+
+                <p>
+                    Pulses launched into an optical fiber will evolve according to the NLSE
+                    When \( \beta \) is negative (anormalous dispersion), the term representing Group Velocity Dispersion<strong> (GVD) :</strong>
+                    <a>
+                        \( -i\frac{\beta}{2} \frac{\partial^2 A}{\partial T^2} \)
+                    </a>
+                    
+                    will cause a <a style="color: blue;">positive (blue) chirp in the front</a> and a <a style="color: red;">negative (red) chirp in the back</a>.
+                    Similarly, the term representing self-phase modulation <strong>(SPM) : </strong> 
+                    <a>
+                        \( i\gamma |A|^2 A \)
+                    </a>
+                    
+                    will cause a <a style="color: red;">red chirp in the front</a> and a<a style="color: blue;"> blue chirp in the back</a>.
+                    Since the chirp caused by GVD depends on the 2nd derivative (curvature) of the pulse, 
+                    while the oppositely signed chirp of SPM depends on the squared amplitude of the pulse, we can ask the following question:
+                    "Is there some pulse envelope, where the effects of GVD and SPM exactly cancel out, causing the pulse to retain its shape as it propagates?"
+                    Such a pulse is called a <strong>"soliton"</strong>. The Sech Pulse is the pulse shape that corresponds to a
+                    <a href="{% static 'NLSE/pdfs/Fundamental soliton derivation.pdf' %}" target="_blank"> Fundamental soliton</a>.
+                </p>
+            </div>
+            <div class="row" style="margin-bottom: 0px;">
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    <div style="text-align: center;font-weight: bold;margin-bottom: 10px;">Gaussian pulse</div>
+                    <div class="row justify-content-center align-items-center" style="text-align: center;font-size: 17px;">
+                        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+                        <script>MathJax.typeset();</script>
+                        <div id="equation">
+                            \( A \cdot \exp\left[-\left(\frac{1+j \cdot C_h}{2}\right)\left(\frac{t}{\tau}\right)^{2 \cdot m} - j \cdot 2 \pi f_c \cdot t\right] \)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    <div style="text-align: center;font-weight: bold;margin-bottom: 10px;">Sinc Pulse</div>
+                    <div class="row justify-content-center align-items-center" style="text-align: center;font-size: 16px;">
+                        <div id="equation">
+                            \( A \cdot \text{sinc}\left(\frac{t }{\tau}\right) \cdot \exp\left[-\left(\frac{1+j \cdot C_h}{2}\right)\left(\frac{t}{\tau}\right)^{2} - j \cdot 2 \pi f_c \cdot t\right] \)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    <div style="text-align: center;font-weight: bold;margin-bottom: 10px;">Sech pulse (Soliton)</div>
+                    <div class="row justify-content-center align-items-center" style="text-align: center;font-size: 18px;height: 50px;">
+                        <div id="equation">
+                            \( \frac{A}{\text{cosh}\left(\frac{t }{\tau}\right)} \cdot \exp\left[\frac{-j \cdot C_h}{2} \cdot \left(\frac{t}{\tau}\right)^{2} - j \cdot 2 \pi f_c \cdot t\right] \)
+                        </div>
+                        
+                    </div>
+                
+            
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 justify-content-center align-items-center">
+                    <div class="title" >Parameters</div>
+
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Pulse Number of Points</th>
+                                
+                                <th colspan="3">Time Resolution \(dt\)(s)</th>
+                                <th>Fiber Number of Steps</th>
+                                
+                            </tr>
+                            <tr>
+                                <td>{{ form.number_of_points }}</td>
+                                
+                                <td >{{ form.time_resolution_1 }}</td>
+                                <td class="e">e</td>
+                                <td >{{ form.time_resolution_2 }}</td>
+                                <td>{{ form3.nsteps }}</td>
+                                
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-12 justify-content-center align-items-center">
+                    <div class="title" >Input Pulse : {{ form1.pulse_type }}</div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Amplitude A (W<sup>1/2</sup>)</th>
+                                <th>Pulse Duration: \(\tau =k \cdot dt; \)</th>
+                                <th>Carrier frequency \(f_c\) (Hz)</th>
+                                <th>Chirp \(C_h\)</th>
+                                <th>Order \(m\)</th>
+                                <th>{{ form1.add_noise }} Add Noise</th>
+
+                            </tr>
+                            <tr>
+                                <td>{{ form1.amplitude }}</td>
+                                <td >\( k =\) {{ form.duration_k }}</td>
+                                <td>{{ form1.testCarrierFreq }}</td>
+                                <td>{{ form1.chirp }}</td>
+                                <td>{{ form1.order }}</td>
+                                <td>Noise Amplitude \( = A / \)  {{ form1.noise_amplitude }}</td>
+
+                            </tr>
+                        </table>
+                    </div>
+                  {% comment %}   <div class="row " >
+                        
+                        <div class="col-lg-7 justify-content-center align-items-center">
+
+                            <div >
+                                <strong>&#8226; Plot :</strong>
+                                <button type="submit" id="add-to-cart-button" class="btn btn-outline-secondary" formmethod="post" name="pulse">Pulse</button>
+                                <button type="submit" id="add-to-cart-button" class="btn btn-outline-secondary " formmethod="post" name="spectrum">Spectrum</button>
+                                <button type="submit" id="add-to-cart-button" class="btn btn-outline-secondary " formmethod="post" name="chirp_fig">Chirp</button>
+                            </div>
+                        </div>
+                        <div id="spectrum"></div>
+                        <script>
+                            var plotData = {{ plotly_json|safe }};
+                            Plotly.newPlot('spectrum', plotData.data, plotData.layout);
+                        </script>
+
+                        <div id="pulse"></div>
+                        <script>
+                            var plotData = {{ pulse|safe }};
+
+                            Plotly.newPlot('pulse', plotData.data, plotData.layout);
+                        </script>
+
+                        <div id="pltchirp"></div>
+                        <script>
+                            var plotData = {{ chirp_figure|safe }};
+
+                            Plotly.newPlot('pltchirp', plotData.data, plotData.layout);
+                        </script>
+                    </div> {% endcomment %}
+                </div>
+           
+                <div class="col-lg-12 justify-content-center align-items-center">
+                    <div class="title" >Fiber Properties</div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                
+                                <th colspan="3">Gamma \( \gamma \) (W<sup>-1</sup>.m<sup>-1</sup>)</th>
+                                <th colspan="3">Beta \( \beta \) (fs<sup>2</sup>.m<sup>-1</sup>)</th>
+                                <th colspan="3">Alpha \( \alpha \) (dB.m<sup>-1</sup>)</th>
+                            </tr>
+                            <tr>
+                                
+                                
+                                <td>{{ form3.gamma_a }}</td>
+                                <td class="e">e</td>
+                                <td >{{ form3.gamma_b }}</td>
+            
+            
+                                <td>{{ form3.beta2_a }}</td>
+                                <td class="e">e</td>
+                                <td >{{ form3.beta2_b }}</td>
+                                
+                                <td >{{ form3.alpha_dB_per_m_a }}</td>
+                                <td class="e">e</td>
+                                <td >{{ form3.alpha_dB_per_m_b }}</td>
+                            </tr>
+                            <tr>
+                                <th colspan="3">Length (m)</th>                         
+
+                                <th colspan="3">{{ form3.length_bool }} Use Characteristic Fiber Length : \( Z \cdot \frac{\pi}{2 \cdot \tau^2 \cdot |\beta|} \)</th>
+                                <th colspan="3">{{ form3.amplitude_bool }}Use Characteristic Pulse Amplitude: \( A \cdot \left( \frac{|\beta|}{\gamma \cdot \tau^2} \right)^{1/2} \)</th>
+                                
+                            </tr>
+                            <tr>
+                                <td >{{ form3.Length_a }}</td>
+                                <td class="e">e</td>
+                                <td >{{ form3.Length_b }}</td>
+
+                                <td colspan="3">\(Z =\) {{ form3.length_charac }}</td>
+                                <td colspan="3">\( A =\) {{ form3.amplitude_charac }}</td>
+                            </tr>
+                        </table>
+                   
+                    </div>
+                    
+                </div>
+                <div class="row justify-content-center align-items-center">
+                    <button type="submit" class="btn btn-primary w-100" name="plot_all">Submit</button>
+                </div>
+               {% comment %}  <div class="col-lg-12 justify-content-center align-items-center ">
+                    <div class="row" ><strong>&#8226; Plot :</strong></div>
+                    <br>
+                    <div class="row" >
+                        <div class="col-md-12" >
+                            <button type="submit" id="plots" class="btn btn-outline-secondary"  formmethod="post" name="plot1d">1D Plots</button>
+                            <button type="submit" id="plots" class="btn btn-outline-secondary" formmethod="post" name="plot2d">2D Plots</button>
+                            <button type="submit" id="plots" class="btn btn-outline-secondary" formmethod="post" name="plot3d">3D Plots</button>
+                            
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" id="plots" class="btn btn-outline-secondary" formmethod="post" name="plotFirstAndLastSpectrum">First And Last Spectrum</button>
+                            <button type="submit" id="plots" class="btn btn-outline-secondary"  formmethod="post" name="plotSpectrumMatrix2D">Spectrum Matrix 2D</button>
+                            <button type="submit" id="plots" class="btn btn-outline-secondary"  formmethod="post" name="plotSpectrumMatrix3D">Spectrum Matrix 3D</button>
+                            
+                        </div>
+                     
+                    </div>
+                    <div class="row" style="margin-top: 10px;">
+                        <button type="submit" id="plots" class="btn btn-outline-secondary" formmethod="post" name="animation">Download .gif animation of pulse evolution</button>
+                      
+                    </div>
+                
+                </div> {% endcomment %}
+            </div>
+                
+                <div class="row">
+                    
+                    <div class="col-lg-4 mb-4">
+                        
+
+                            <div id="lines-plot"></div>
+                            <script>
+                                var plot_data = {{ anim_lines_plot_data|safe }};
+                                Plotly.newPlot('lines-plot', plot_data.data, plot_data.layout).then(function() {
+                                    Plotly.addFrames('lines-plot', plot_data.frames);
+                                });
+                            </script>
+                        </div>   
+                    <div class="col-lg-4 mb-4">
+
+                        <div id="speclines-plot"></div>
+                        <script>
+                            var plot_data = {{ anim_lines_plot_data_spectrum|safe }};
+                            Plotly.newPlot('speclines-plot', plot_data.data, plot_data.layout).then(function() {
+                                Plotly.addFrames('speclines-plot', plot_data.frames);
+                            });
+                        </script>
+                    </div>
+                    <div class="col-lg-4 mb-4">
+                        <div id="chirplines-plot"></div>
+                        <script>
+                            var plot_data = {{ anim_lines_plot_data_chirp|safe }};
+                            Plotly.newPlot('chirplines-plot', plot_data.data, plot_data.layout).then(function() {
+                                Plotly.addFrames('chirplines-plot', plot_data.frames);
+                            });
+                        </script>
+                    </div>
+                    <div class="col-lg-12 mb-4">
+                    {% if animation %}
+                        
+                        <div align="center">
+                            <img src="{% static 'NLSE/pulse_animation.gif' %}" alt="Animation" >
+                        </div>
+                        <div >
+                            <button type="submit" id="plots" class="btn btn-outline-secondary" formmethod="post" name="downloadgif">Download gif</button>
+                        </div>
+                    {% endif %}
+                    </div>
+                    
+                </div>
+         
+        </form>
+        
+    </div>
+</section>
+
+<style>
+    .title {
+        font-size: 20px;
+        font-weight: bold;
+        color: rgb(0, 0, 0);
+        text-decoration: none;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        text-align: center;
+        background-color: #dddcdc;
+
+    }
+
+
+    .e {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        width: 40px;
+        height: 30px;
+        background-color: #ccc;
+        border: 1px solid #999;
+        cursor: pointer;
+    }
+    .e:hover {
+        background-color: #999;
+        color: white;
+    }
+
+    #add-to-cart-button {
+        background-color: rgb(208, 208, 208); 
+        color: rgb(0, 0, 0); 
+        height: 50px;
+        width: 30%;
+        margin-bottom: 5px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    #add-to-cart-button:hover {
+        background-color: rgb(79, 79, 79); 
+        color: white; 
+    }
+    #plots {
+        background-color: rgb(208, 208, 208); 
+        color: rgb(0, 0, 0); 
+        height: 50px;
+        width: 100%;
+        margin-bottom: 10px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    #plots:hover {
+        background-color: rgb(79, 79, 79); 
+        color: white; 
+    }
+    .main-title{
+        font-size: 22px;
+        font-weight: bold;
+        color: rgb(0, 0, 0);
+        text-decoration: none;
+        margin-top: 10px;
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

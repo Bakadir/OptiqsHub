@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYLXW9FTCX"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-MYLXW9FTCX');
+    </script>
+    
+
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{% block title %}Optiqs Hub{% endblock %}</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    {% load static %}
+
+    <!-- Favicons -->
+    <link href="{% static 'assets/img/logosite.png' %}" rel="icon">
+    <link href="{% static 'assets/img/logosite.png' %}" rel="apple-touch-icon">
+
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  
+
+</head>
+
+<body>
+
+    <header id="header" class="header d-flex align-items-center sticky-top">
+        <div class="container-fluid container-xl position-relative d-flex align-items-center">
+            
+            <a href="{% url 'app:home' %}" class="logo d-flex align-items-center me-auto">
+                
+                <h1 class="sitename"><img src="{% static 'app/images/logosite.png' %}" ></h1>
+            </a>
+
+            <nav id="navmenu" class="navmenu">
+                <ul>
+                  
+                   
+                    <li class="dropdown"><a href=""><span>Fourier Optics</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                        <ul>
+                        <li><a href="{% url 'fourieroptics:home' %}">Diffraction Patterns with the Angular Spectrum Method</a></li>
+                        </ul>
+                    </li>
+                
+
+                    <li class="dropdown"><a href=""><span>Thin Film</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                        <ul>
+                        <li><a href="{% url 'thinfilms:home' %}">the Transfer-Matrix Method</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li class="dropdown"><a href=""><span>Pulse Propagation</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                        <ul>
+                        <li><a href="{% url 'NLSE:home' %}">through an optical fiber</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li class="dropdown"><a href=""><span>Polarization</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                        <ul>
+                        <li><a href="{% url 'polarization:jonescalculus' %}">Jones Calculus</a></li>
+                        <li><a href="{% url 'polarization:muellercalculus' %}">Mueller Calculus</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href=""><span>Interferometers</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                        <ul>
+                            <li><a href="{% url 'interferometers:michelson_interferometer' %}">Michelson Interferometer</a></li>
+                            <li><a href="{% url 'interferometers:fabry_perot_interferometer' %}">Fabry–Pérot Interferometer</a></li>
+                            <li><a href="{% url 'interferometers:mach_zehnder_interferometer' %}">Mach–Zehnder Interferometer</a></li>
+                        </ul>
+                    </li>
+                    
+
+                </ul>
+                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+            </nav>
+            {% if request.user.is_authenticated %}
+            <a class="btn-getstarted me-3" href="{% url 'app:account' user.profile.slug %}"><i class="bi-person smoothscroll me-1"></i>{{ user.username }}</a>
+            <a href="{% url 'app:logout' %}" >Logout</a>
+            {% else %}
+            <a class="btn-getstarted" href="{% url 'app:login' %}"><i class="bi-person smoothscroll me-1"></i>Account</a>
+
+            {% endif %}
+           
+        </div>
+    </header>
+
+    <main class="main">
+
+
+    
+        {% block content %}
+
+
+        {% endblock %}
+
+    </main>
+
+   
+
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Preloader -->
+  {% comment %}   <div id="preloader"></div> {% endcomment %}
+    <!-- Vendor JS Files -->
+    
+    <!-- Main JS File -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+
+    
+
+    <script>
+        // Function to save the scroll position
+        function saveScrollPosition() {
+            // Save the current scroll position in localStorage
+            localStorage.setItem('scrollPosition', window.scrollY);
+        }
+
+        // Function to restore the scroll position
+        function restoreScrollPosition() {
+            // Get the saved scroll position from localStorage
+            const scrollPosition = localStorage.getItem('scrollPosition');
+            if (scrollPosition !== null) {
+                // Scroll to the saved position
+                window.scrollTo(0, parseInt(scrollPosition, 10));
+            }
+        }
+
+        // Save the scroll position before the page unloads
+        window.addEventListener('beforeunload', saveScrollPosition);
+
+        // Restore the scroll position after the page loads
+        window.addEventListener('load', restoreScrollPosition);
+    </script>
+
+
+    <style>
+        #plots {
+            background-color: rgb(208, 208, 208); 
+            color: rgb(0, 0, 0); 
+            height: 50px;
+            width: 100%;
+            margin-bottom: 10px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #plots:hover {
+            background-color: rgb(79, 79, 79); 
+            color: white; 
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            text-decoration: none;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+            background-color: #dddcdc;
+    
+        }
+    
+        .table-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 12px; /* Make the table smaller */
+            width: auto; /* Allow table to size itself based on content */
+            margin: 0 auto; /* Center the table */
+        }
+        
+        th, td {
+            padding: 5px; /* Smaller padding for compact look */
+            border: 1px solid #b9b9b9;
+            text-align: center;
+            vertical-align: middle; /* Align content in the middle */
+        }
+        
+        th {
+            background-color: #cecece;
+            color: rgb(0, 0, 0);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .form-container {
+            display: inline-block;
+            width: 100%; /* Allow forms to scale with column width */
+            text-align: center; /* Center align the form fields */
+        }
+        
+        input, select, textarea {
+            font-size: 12px; /* Smaller input font size */
+            padding: 3px; /* Reduce padding for inputs */
+            width: auto; /* Match content width */
+            text-align: center; /* Center the form text */
+            box-sizing: border-box; /* Ensure inputs respect padding and width */
+        }
+        
+    </style>
+    <style>
+        .main-title{
+            font-size: 22px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            text-decoration: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</body>
+
+</html>

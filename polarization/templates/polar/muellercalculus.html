@@ -1,0 +1,234 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+<title>{% block title %}Mueller Calculus{% endblock %}</title>
+
+
+    {% load static %}
+    
+      
+    <section id="starter-section" class="starter-section section">
+    
+        <div class="container">
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ matrix_formset.management_form }}
+                <p class="main-title">
+                    <a href="https://en.wikipedia.org/wiki/Mueller_calculus" target="_blank">
+                        Mueller Calculus
+                        </a>
+                </p>
+
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Input Polarization</th>
+                                <th>Linear Polarization</th>
+                                <th colspan="3">Elliptical Polarization</th>
+                            <!--  <th colspan="2">for Ellipsometry</th> -->
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>Angle in degrees :</td>
+                                <td>Degree of polarization</td>
+                                <td>Azimuth in degrees :</td>
+                                <td>Elliptic Angle in degrees :</td>
+                                <!-- <td>Tanpsi :</td>
+                                <td>Delta in degrees:</td> -->
+                                
+                                
+                            </tr>
+                            <tr>
+                                <td>{{ vector_form.vector_type }}</td>
+                                <td>{{ vector_form.angle }}</td>
+                                <td>{{ vector_form.degree_of_polarization }}</td>
+                                <td>{{ vector_form.azimuth }}</td>
+                                <td>{{ vector_form.elliptic_angle }}</td>
+                            
+                            </tr>
+                            
+                        </table>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>Optical Elements</th>
+                                <th>Linear Polarizer</th>
+                                <th>Retarder or Wave Plate</th>
+                                <th>Retarder</th>
+                                <th>Attenuator</th>
+                                <th colspan="2">Fresnel Effects</th>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>Angle in degrees</td>
+                                <td>Fast Axis Angle in degrees</td>
+                                <td>Retardance in degrees</td>
+                                <td>Optical Density</td>
+                                <td>Index of Refraction</td>
+                                <td>Incidence Angle in degrees</td>
+                            </tr>
+                            {% for matrix_form in matrix_formset %}
+                            <tr class="matrix-form">
+                                <td>{{ forloop.counter }} - {{ matrix_form.matrix_type }}</td>
+                                <td>{{ matrix_form.matrix_angle }}</td>
+                                <td>{{ matrix_form.fast_axis_angle }}</td>
+                                <td>{{ matrix_form.retardance }}</td>
+                                <td>{{ matrix_form.optical_density }}</td>
+                                <td>{{ matrix_form.re_index_of_refraction }} + <strong>j</strong>{{ matrix_form.im_index_of_refraction }}</td>
+                                <td>{{ matrix_form.incidence_angle }}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <button class="btn btn-primary" name="delete_matrix">-</button>
+                <button class="btn btn-primary" name="add_matrix">+</button>
+                <br><br>
+                <button type="submit" name="generate_stokes&muellerpola" formmethod="post" class="btn btn-primary w-100" >Submit</button>       
+                <hr>    
+            </form>
+            {% if animation %}
+                <button id="openPlotBtn" class="btn btn-primary" style="margin-top: 20px;">View Stokes Vectors on Poincaré Sphere</button>
+
+                <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+                <!-- Add plot_html inside a div (will be shown in popup) -->
+                <div style="display: none;" id="plotContainer">
+                    {{ plot_html|safe }}
+                </div>
+
+                <script>
+                    // Event listener for the button click
+                    document.getElementById("openPlotBtn").addEventListener("click", function() {
+                        // Create a new window or popup
+                        var plotWindow = window.open("", "Stokes Vectors Plot", "width=800,height=600");
+
+                        // Get the plot content from the hidden div
+                        var plotContent = document.getElementById("plotContainer").innerHTML;
+
+                        // Write the plot content to the new window
+                        plotWindow.document.write("<html><head><title>Poincaré Sphere Plot</title></head><body>");
+                        plotWindow.document.write("<h2 align='center'>Stokes Vectors on Poincaré Sphere</h2>");
+                        plotWindow.document.write(plotContent);
+                        plotWindow.document.write("</body></html>");
+                        plotWindow.document.close(); // Close the document stream
+                    });
+                </script>
+                <div class="table-container mt-5" style="width: 100%;">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <tr>
+                                <th>&nbsp;</th>
+                                {% for state in states %}
+                                    <th >{{ state.polarization }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th>Animation</th>
+                                {% for state in states %}
+                                    <td><img src="{% static 'polarization/' %}{{ state.animation }}" style="height: 150px;" alt="State Animation"></td>
+                                {% endfor %}
+
+                            </tr>
+                            <tr>
+                                <th>Stokes Vector</th>
+                                {% for state in states %}
+                                    <td>{{ state.stokes_vector }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th>Intensity</th>
+                                {% for state in states %}
+                                    <td>{{ state.intensity }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th>Degree of Polarization</th>
+                                {% for state in states %}
+                                    <td>{{ state.degree_of_polarization }}</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th>Ellipse Azimuth in degrees</th>
+                                {% for state in states %}
+                                    <td>{{ state.ellipse_orientation }}°</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th>Ellipse Elliptic Angle in degrees</th>
+                                {% for state in states %}
+                                    <td>{{ state.ellipse_ellipticity }}°</td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th>Ellipse Axes</th>
+                                {% for state in states %}
+                                    <td>{{ state.ellipse_axes }}</td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+             {% endif %}
+        
+        </div>
+
+    </section>
+    
+
+    <style>
+        .table-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 12px; /* Make the table smaller */
+            width: auto; /* Allow table to size itself based on content */
+            margin: 0 auto; /* Center the table */
+        }
+        
+        th, td {
+            padding: 5px; /* Smaller padding for compact look */
+            border: 1px solid #b9b9b9;
+            text-align: center;
+            vertical-align: middle; /* Align content in the middle */
+        }
+        
+        th {
+            background-color: #cecece;
+            color: rgb(0, 0, 0);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .form-container {
+            display: inline-block;
+            width: 100%; /* Allow forms to scale with column width */
+            text-align: center; /* Center align the form fields */
+        }
+        
+        input, select, textarea {
+            font-size: 12px; /* Smaller input font size */
+            padding: 3px; /* Reduce padding for inputs */
+            width: auto; /* Match content width */
+            text-align: center; /* Center the form text */
+            box-sizing: border-box; /* Ensure inputs respect padding and width */
+        }
+    </style>
+{% endblock %}

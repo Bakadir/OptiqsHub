@@ -1,0 +1,19 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+<h1>Simulations by {{ user.username }}</h1>
+
+{% if simulations %}
+    <ul>
+        {% for simulation in simulations %}
+            <li>
+                <a href="{{ simulation.get_absolute_url }}">{{ simulation.title }}</a> - {{ simulation.created_at }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No simulations found.</p>
+{% endif %}
+
+
+{% endblock %}
