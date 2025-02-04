@@ -10,24 +10,9 @@
 
 <section id="starter-section" class="starter-section section">
     <div class="container" >
-        
-
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ formset.management_form }}
-            
-            <p class="main-title">
-                Simulating 
-                <a href="https://en.wikipedia.org/wiki/Diffraction" target="_blank">
-                Diffraction 
-                </a>
-                Patterns with the
-                <a href="https://en.wikipedia.org/wiki/Angular_spectrum_method" target="_blank">
-                    Angular Spectrum Method
-                </a>
-             </p>
-            <div class="row">
-                <div class="col" style="flex: 0 0 26%; max-width: 26%;">
+       
+             <div class="row">
+                <div class="col-lg-4 justify-content-center align-items-center">
                     <div class="title">
                         Light Source
                     </div>
@@ -39,51 +24,68 @@
                                 <th>Wavelength (nm)</th>
                                 <th>Intensity</th>
                             </tr>
-                            {% for wavelength, intensity in wavelengths_intensities %}
-                                <tr>
-                                    <td>{{ wavelength|floatformat:2 }}</td>  <!-- Format to 2 decimal places -->
-                                    <td>{{ intensity|floatformat:2 }}</td>
-                                </tr>
+                            {% for wavelength ,intensity  in lightsource %}
+                            <tr>
+                                <td>{{ wavelength }}</td>
+                                <td>{{ intensity }}</td>
+                            </tr>
                             {% endfor %}
-                           
                         </table>
                             
                     </div>
-                    
+               
                 </div>
-                <div class="col" style="flex: 0 0 74%; max-width: 74%;">
+                <div class="col-lg-8 justify-content-center align-items-center">
                     <div class="title">
-                        Aperture : {{ form.aperture_type }}
+                        Aperture : {{ result.aperture_type }}
                     </div>
-                   
+                    {% if result.aperture_type == 'N-Slit' %}
+
+
                     <div class="table-wrapper">
+                        
                         <table class="table">
                             <tr>
                                 <th colspan="4">N Slit</th>
-                                <th>Circular</th>
                             </tr>
                             <tr>
                                 <td>Number Of Slits</td>
                                 <td>Width (mm)</td>
                                 <td>Height (mm)</td>
                                 <td>Distance between slits (mm):</td>
-                                <td>Aperture Radius (mm)</td>
                             </tr>
                             <tr>
-                                <td><div class="form-container">{{ form.number_of_slits }}</div></td>
-                                <td><div class="form-container">{{ form.slit_width }}</div></td>
-                                <td><div class="form-container">{{ form.slit_height }}</div></td>
-                                <td><div class="form-container">{{ form.distance_between_slits }}</div></td>
-                                <td><div class="form-container">{{ form.aperture_radius }}</div></td>
+                                <td><div class="form-container">{{ result.number_of_slits }}</div></td>
+                                <td><div class="form-container">{{ result.slit_width }}</div></td>
+                                <td><div class="form-container">{{ result.slit_height }}</div></td>
+                                <td><div class="form-container">{{ result.distance_between_slits }}</div></td>
                             </tr>
                         </table>
                     </div>
+                    {% elif result.aperture_type == 'Circular' %}
+                    <div class="table-wrapper">
+                        
+                        <table class="table">
+                            <tr>
+                                <th>Circular</th>
+                            </tr>
+                            <tr>
+                                <td>Aperture Radius (mm)</td>
+                            </tr>
+                            <tr>
+                                <td><div class="form-container">{{ result.aperture_radius }}</div></td>
+                            </tr>
+                        </table>
+                    </div>
+                    {% endif %}
+
                 </div>
             </div>
             <div class="row">
-                <div class="col" style="flex: 0 0 29.167%; max-width: 29.167%;">
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    {% if result.add_lens %}
                     <div class="title">
-                        {{ form.add_lens }} Add Lens
+                         Lens
         
                     </div>
                     <div class="table-wrapper">
@@ -94,14 +96,15 @@
                                 <th>Focal Length (mm)</th>
                             </tr>
                             <tr>
-                                <td>{{ form.distance_lens_to_aperture }}</td>
-                                <td>{{ form.focal_length }}</td>
+                                <td>{{ result.distance_lens_to_aperture }}</td>
+                                <td>{{ result.focal_length }}</td>
                             </tr>
                             
                         </table>
                     </div>
+                    {% endif %}
                 </div>
-                <div class="col" style="flex: 0 0 29.167%; max-width: 29.167%;">
+                <div class="col-lg-4 justify-content-center align-items-center">
                     <div class="title">
                         Screen
         
@@ -114,14 +117,14 @@
                                 <th>Width (mm)</th>
                             </tr>
                             <tr>
-                                <td>{{ form.distance_screen_to_aperture }}</td>
-                                <td>{{ form.screen_width }}</td>
+                                <td>{{ result.distance_screen_to_aperture }}</td>
+                                <td>{{ result.screen_width }}</td>
                             </tr>
                         
                         </table>
                         </div>
                 </div>
-                <div class="col-lg-5 justify-content-center align-items-center">
+                <div class="col-lg-4 justify-content-center align-items-center">
                     <div class="title">
                         Parameters
         
@@ -130,17 +133,13 @@
                         <table class="table">
                         
                             <tr>
-                                <th rowspan="2">Resolution</th>
-                                <th colspan="2">Animation parameters</th>
+                                <th >Resolution</th>
+                                <th >Number of Steps</th>
                             </tr>
+                        
                             <tr>
-                                <td>Frames</td>
-                                <td>Framerate</td>
-                            </tr>
-                            <tr>
-                                <td>{{ form.resolution }}</td>
-                                <td>{{ form.animation_frames }}</td>
-                                <td>{{ form.animation_framerate }}</td>
+                                <td>{{ result.resolution }}</td>
+                                <td>{{ result.animation_frames }}</td>
                             </tr>
                         
                         </table>
@@ -148,67 +147,51 @@
                 </div>
             </div>
         
-        
-        <hr>
-        <div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
-           
-            
-            <div class="col-lg-6 mb-4">
-                <button class="btn btn-primary w-100" onclick="window.location.href='{% url 'fourieroptics:download_animation' %}'">Download RGB Animation</button>
+            <hr>
+            <div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
+                
+                <div class="col-lg-6 mb-4">
+                    <div id="rgb-plot"></div>
+                    <script>
+                        var plot_data = {{ result.anim_rgb_plot_data|safe }};
+                        Plotly.newPlot('rgb-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('rgb-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
 
-                <img src="{{ form.rgb_animation_path_url }}" alt="Fourier Optics Animation" class="img-fluid">
+                <div class="col-lg-6 mb-4">
 
-            
+                    <div id="heatmap-plot"></div>
+                    <script>
+                        var plot_data = {{ result.anim_heatmap_plot_data|safe }};
+                        Plotly.newPlot('heatmap-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('heatmap-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div id="3d-plot"></div>
+                    <script>
+                        var plot_data = {{ result.anim_3d_plot_data|safe }};
+                        Plotly.newPlot('3d-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('3d-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div id="lines-plot"></div>
+                    <script>
+                        var plot_data = {{ result.anim_lines_plot_data|safe }};
+                        Plotly.newPlot('lines-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('lines-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
             </div>
-            <div class="col-lg-6 mb-4">
-                <button class="btn btn-primary w-100" onclick="window.location.href='{% url 'fourieroptics:download_animation_intensity' %}'">Download Intensity Animation</button>
-
-                <img src="{{ form.intensity_animation_path_url }}"  alt="Fourier Optics Animation" class="img-fluid">
-            </div>
-       
-           
-            <div class="col-lg-6 mb-4">
-                <div id="rgb-plot"></div>
-                <script>
-                    var plot_data = {{ form.anim_rgb_plot_data|safe }};
-                    Plotly.newPlot('rgb-plot', plot_data.data, plot_data.layout).then(function() {
-                        Plotly.addFrames('rgb-plot', plot_data.frames);
-                    });
-                </script>
-            </div>
-
-            <div class="col-lg-6 mb-4">
-
-                <div id="heatmap-plot"></div>
-                <script>
-                    var plot_data = {{ form.anim_heatmap_plot_data|safe }};
-                    Plotly.newPlot('heatmap-plot', plot_data.data, plot_data.layout).then(function() {
-                        Plotly.addFrames('heatmap-plot', plot_data.frames);
-                    });
-                </script>
-            </div>
-
-            <div class="col-lg-6 mb-4">
-                <div id="3d-plot"></div>
-                <script>
-                    var plot_data = {{ form.anim_3d_plot_data|safe }};
-                    Plotly.newPlot('3d-plot', plot_data.data, plot_data.layout).then(function() {
-                        Plotly.addFrames('3d-plot', plot_data.frames);
-                    });
-                </script>
-            </div>
-
-            <div class="col-lg-6 mb-4">
-                <div id="lines-plot"></div>
-                <script>
-                    var plot_data = {{ form.anim_lines_plot_data|safe }};
-                    Plotly.newPlot('lines-plot', plot_data.data, plot_data.layout).then(function() {
-                        Plotly.addFrames('lines-plot', plot_data.frames);
-                    });
-                </script>
-            </div>
-
-        </div>
         
         
     </div>

@@ -68,13 +68,12 @@ def ApertureFromImage(image_path, Nx, Ny):
 
     return t
 
-
+import uuid
 def home(request):
     
 
     if request.method == "POST":
         form = FourierDiff(request.POST)
-        
         WavelengthIntensityFormSet = formset_factory(WavelengthIntensityForm, extra=1)
         formset = WavelengthIntensityFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
@@ -86,7 +85,7 @@ def home(request):
                 if formset.total_form_count()>1:
                     formset = formset_factory(WavelengthIntensityForm, extra=-1)(initial=[form.cleaned_data for form in formset])
                 context = {'form': form,'formset':formset}
-            else :
+            elif "plot_all_optimized" in request.POST:
                 aperture_type = form.cleaned_data['aperture_type'] 
                 wavelengths = []
                 intensities = []
@@ -106,17 +105,13 @@ def home(request):
 
                 aperture_radius = form.cleaned_data['aperture_radius'] * 1e-3  
 
-                add_lens = form.cleaned_data['add_lens'] 
-                distance_lens_to_aperture = form.cleaned_data['distance_lens_to_aperture'] * 1e-2 
-                focal_length = form.cleaned_data['focal_length'] * 1e-3 
-
                 distance_screen_to_aperture = form.cleaned_data['distance_screen_to_aperture'] * 1e-2 
                 screen_width = form.cleaned_data['screen_width'] * 1e-3 
                 screen_height = screen_width 
 
                 resolution = form.cleaned_data['resolution']   
                 animation_frames = form.cleaned_data['animation_frames']  
-                animation_framerate = form.cleaned_data['animation_framerate']  
+               
                 x = np.linspace(-screen_width / 2, screen_width / 2, resolution)
                 y = np.linspace(-screen_height / 2, screen_height / 2, resolution)
                 xv, yv = np.meshgrid(x, y)
@@ -140,66 +135,8 @@ def home(request):
                     
                     U0 = ApertureFromImage(image_path, xv.shape[0], yv.shape[1])
                 
-
-                def compute_U(U0, xv, yv, lam, z):
-       
-                    Nx, Ny = U0.shape
-
-                    # Sampling intervals in x and y
-                    dx = xv[0, 1] - xv[0, 0]  # dx
-                    dy = yv[1, 0] - yv[0, 0]  # dy
-
-                    # Spatial frequency coordinates in x and y (kx and ky)
-                    kx = 2 * np.pi * fftfreq(Nx, dx)  # Frequency coordinates in x
-                    ky = 2 * np.pi * fftfreq(Ny, dy)  # Frequency coordinates in y
-                    
-                    # 2D frequency grid (kx, ky)
-                    kxv, kyv = np.meshgrid(kx, ky)
-                    
-                    # Wavenumber
-                    k = 2 * np.pi / lam  # Wavenumber
-                    
-                    # Fourier transform of the initial field U0
-                    A = fft2(U0)
-
-                    # If lens effect is enabled
-                    if add_lens:
-                        # If the propagation is before the lens
-                        if z <= distance_lens_to_aperture:
-                            # Propagation using the transfer function in the Fourier domain
-                            transfer_function = np.exp(1j * z * np.sqrt(k**2 - kxv**2 - kyv**2))
-                            U = ifft2(A * transfer_function)  # Propagate using the transfer function
-                            return U
-                        
-                        else:
-                            # Propagation after the lens, split the distance into before and after lens
-                            z_after_lens = z - distance_lens_to_aperture  # Distance after the lens
-                            
-                            # Apply lens phase shift (quadratic phase factor for the lens effect)
-                            lens_phase = np.exp(-1j * (k / (2 * focal_length)) * (xv**2 + yv**2))  # Lens phase factor
-                            U0_with_lens = U0 * lens_phase  # Apply lens phase to the field
-
-                            # Fourier transform after applying lens phase shift
-                            A_lens = fft2(U0_with_lens)
-                            
-                            # Transfer function for propagation before the lens (Fresnel approximation)
-                            transfer_function_before_lens = np.exp(1j * distance_lens_to_aperture * np.sqrt(k**2 - kxv**2 - kyv**2))
-                            A_after_lens = A_lens * transfer_function_before_lens  # Apply transfer function before lens
-
-                            # Transfer function for propagation after the lens
-                            transfer_function_after_lens = np.exp(1j * z_after_lens * np.sqrt(k**2 - kxv**2 - kyv**2))  # Fresnel transfer function after lens
-                            U = ifft2(A_after_lens * transfer_function_after_lens)  # Propagate the field using the transfer function
-                            
-                            return U
-                    else:
-                        # If no lens, just propagate using the transfer function (Fresnel approximation)
-                        transfer_function = np.exp(1j * z * np.sqrt(k**2 - kxv**2 - kyv**2))
-                        U = ifft2(A * transfer_function)  # Propagate the field using the transfer function
-                        return U
-
-                
-                rgb_images = []
-                intensity_images = []
+                #rgb_images = []
+                #intensity_images = []
                 frames_heatmap = []
                 frames_3d = []
                 frames_lines = []
@@ -208,7 +145,19 @@ def home(request):
                 num_frames = animation_frames # 10
                 rgb_colors = [wavelength_to_rgb(wl * 1e9) for wl in wavelengths]
                 # Compute images for all frames
-                
+                #k = 2 * np.pi / wl 
+
+                Nx, Ny = U0.shape
+
+                # Sampling intervals in x and y
+                dx = xv[0, 1] - xv[0, 0]  # dx
+                dy = yv[1, 0] - yv[0, 0]  # dy
+
+                # Spatial frequency coordinates in x and y (kx and ky)
+                kx = 2 * np.pi * fftfreq(Nx, dx)  # Frequency coordinates in x
+                ky = 2 * np.pi * fftfreq(Ny, dy)
+                kxv, kyv = np.meshgrid(kx, ky)
+                A = fft2(U0)
                 for frame in range(num_frames):
                     screen_distance = distance_screen_to_aperture * frame / (num_frames - 1)
 
@@ -217,9 +166,15 @@ def home(request):
                     intensity_image = np.zeros_like(xv, dtype=np.float64)
                         # Convert to nm for RGB mapping
                     U_total = np.zeros_like(xv, dtype=np.complex128)
+
                     for wl, intensity, rgb_color in zip(wavelengths, intensities, rgb_colors):
                         # Compute the field at the screen for the current wavelength
-                        U_screen_temp = compute_U(U0, xv, yv, wl, screen_distance)
+                        #U_screen_temp = compute_U(U0, xv, yv, wl, screen_distance)
+
+                        k = 2 * np.pi / wl 
+                        transfer_function = np.exp(1j * screen_distance * np.sqrt(k**2 - kxv**2 - kyv**2))
+                        U_screen_temp = ifft2(A * transfer_function)
+
 
                         U_total += U_screen_temp * intensity
 
@@ -241,8 +196,8 @@ def home(request):
                     
 
                     # Store precomputed images
-                    intensity_images.append(intensity_distribution)
-                    rgb_images.append(rgb_image)
+                    #intensity_images.append(intensity_distribution)
+                    #rgb_images.append(rgb_image)
 
                     frame_data_heatmap = go.Heatmap(z=intensity_distribution, x=xv[0] * 1e3, y=yv[:, 0] * 1e3, colorscale='Inferno')
                     frames_heatmap.append(go.Frame(data=[frame_data_heatmap], name=str(frame)))
@@ -285,56 +240,6 @@ def home(request):
                     frames_rgb.append(go.Frame(data=fig_rgb.data, name=str(frame)))
 
 
-                fig_rgb, ax_rgb = plt.subplots(figsize=(6, 6))
-                ax_rgb.set_xlabel("x (mm)")
-                ax_rgb.set_ylabel("y (mm)")
-                ax_rgb.set_xlim(-screen_width * 1e3 / 2, screen_width * 1e3 / 2)
-                ax_rgb.set_ylim(-screen_height * 1e3 / 2, screen_height * 1e3 / 2)
-                img_rgb = ax_rgb.imshow(np.zeros((resolution, resolution, 3)), origin='lower',
-                                        extent=[-screen_width * 1e3 / 2, screen_width * 1e3 / 2, -screen_height * 1e3 / 2, screen_height * 1e3 / 2])
-
-                # Update function for RGB animation
-                def update_rgb(frame):
-                    img_rgb.set_data(rgb_images[frame])
-                    ax_rgb.set_title(f"RGB Animation - Distance: {distance_screen_to_aperture * frame / (num_frames - 1) * 1e2:.2f} cm")
-                    return [img_rgb]
-
-                # Animation setup for Intensity
-                fig_intensity, ax_intensity = plt.subplots(figsize=(6, 6))
-                ax_intensity.set_xlabel("x (mm)")
-                ax_intensity.set_ylabel("y (mm)")
-                ax_intensity.set_xlim(-screen_width * 1e3 / 2, screen_width * 1e3 / 2)
-                ax_intensity.set_ylim(-screen_height * 1e3 / 2, screen_height * 1e3 / 2)
-                img_intensity = ax_intensity.imshow(np.zeros_like(intensity_images[0]), origin='lower', cmap='inferno',
-                                                    extent=[-screen_width * 1e3 / 2, screen_width * 1e3 / 2,
-                                                            -screen_height * 1e3 / 2, screen_height * 1e3 / 2],
-                                                    vmin=0, vmax=1)
-
-                # Update function for Intensity animation
-                def update_intensity(frame):
-                    img_intensity.set_data(intensity_images[frame])
-                    ax_intensity.set_title(f"Intensity Distribution - Distance: {distance_screen_to_aperture * frame / (num_frames - 1) * 1e2:.2f} cm")
-                    return [img_intensity]
-
-                # Animation parameters
-                framerate = animation_framerate
-                interval = 1000 / framerate
-
-                # Create and save the RGB animation
-                ani_rgb = FuncAnimation(fig_rgb, update_rgb, frames=num_frames, interval=interval, blit=True)
-                gif_file_path_rgb = 'static/fourieroptics/rgb_animation_optimized.gif'
-                writer = PillowWriter(fps=framerate)
-                ani_rgb.save(gif_file_path_rgb, writer=writer)
-                shutil.copy(gif_file_path_rgb, 'staticfiles/fourieroptics/rgb_animation_optimized.gif')
-
-                # Create and save the Intensity animation
-                ani_intensity = FuncAnimation(fig_intensity, update_intensity, frames=num_frames, interval=interval, blit=True)
-                gif_file_path_intensity = 'static/fourieroptics/intensity_animation_optimized.gif'
-                ani_intensity.save(gif_file_path_intensity, writer=writer)
-                shutil.copy(gif_file_path_intensity, 'staticfiles/fourieroptics/intensity_animation_optimized.gif')
-
-
-                
                 num_frames = animation_frames
                 screen_distances = np.linspace(0, distance_screen_to_aperture, num_frames)
 
@@ -459,79 +364,15 @@ def home(request):
                 )
                 anim_lines_plot_data = pio.to_json(fig_lines)
 
-                if "plot_all_optimized" in request.POST:
-                    context = {
-                        'form': form,
-                        'formset': formset,
-                        'anim_heatmap_plot_data': anim_heatmap_plot_data,
-                        'anim_3d_plot_data': anim_3d_plot_data,
-                        'anim_lines_plot_data': anim_lines_plot_data,
-                        'anim_rgb_plot_data': anim_rgb_plot_data,
-                        'animation_saved': True, 
-                    }
-                    return render(request, 'fourieroptics/home.html', context)
 
-                elif "save_simu" in request.POST:
-                    title = request.POST.get('title')
-                    visibility = request.POST.get('visibility')
-                    simulation_result = FourierOptics.objects.create(
-                        title = title,
-                        visibility=visibility,
-                        created_by=request.user,
-                        aperture_type=aperture_type,
-                        wavelengths=wavelengths,
-                        intensities=intensities,
-                        number_of_slits=number_of_slits,
-                        distance_between_slits=distance_between_slits,
-                        slit_width=slit_width,
-                        slit_height=slit_height,
-                        aperture_radius=aperture_radius,
-                        add_lens=add_lens,
-                        distance_lens_to_aperture=distance_lens_to_aperture,
-                        focal_length=focal_length,
-                        distance_screen_to_aperture=distance_screen_to_aperture,
-                        screen_width=screen_width,
-                        screen_height=screen_height,
-                        resolution=resolution,
-                        animation_frames=animation_frames,
-                        animation_framerate=animation_framerate,
-                        anim_heatmap_plot_data=anim_heatmap_plot_data,
-                        anim_3d_plot_data = anim_3d_plot_data,
-                        anim_lines_plot_data = anim_lines_plot_data,
-                        anim_rgb_plot_data = anim_rgb_plot_data
-                    )
-
-                    # Define the unique paths for the GIF files
-                    gif_file_path_rgb_sim = f'fourieroptics/rgb_animation_{simulation_result.id}_optimized.gif'
-                    gif_file_path_intensity_sim = f'fourieroptics/intensity_animation_{simulation_result.id}_optimized.gif'
-
-                    # Copy the GIF files to the static directory (relative path)
-                    shutil.copy(gif_file_path_rgb, f'static/{gif_file_path_rgb_sim}')
-                    shutil.copy(gif_file_path_intensity, f'static/{gif_file_path_intensity_sim}')
-
-                    # Copy the GIFs to the staticfiles directory (useful for production deployment)
-                    shutil.copy(f'static/{gif_file_path_rgb_sim}', f'staticfiles/{gif_file_path_rgb_sim}')
-                    shutil.copy(f'static/{gif_file_path_intensity_sim}', f'staticfiles/{gif_file_path_intensity_sim}')
-
-                    with open(gif_file_path_rgb, 'rb') as f_rgb:
-                        simulation_result.rgb_animation_path.save(gif_file_path_rgb_sim, File(f_rgb), save=True)
-
-                    with open(gif_file_path_intensity, 'rb') as f_intensity:
-                        simulation_result.intensity_animation_path.save(gif_file_path_intensity_sim, File(f_intensity), save=True)
-
-
-                    # Save the relative paths to the model
-                    #simulation_result.rgb_animation_path = gif_file_path_rgb_sim
-                    #simulation_result.intensity_animation_path = gif_file_path_intensity_sim
-
-                    # Save the simulation result instance
-                    simulation_result.save()
-                   
-                    return redirect(simulation_result.get_absolute_url())
-
-
-                    #return redirect('app:view_simulation', simulation_id=simulation_result.id,user_id=request.user.id)
-
+                
+                context = {
+                    "form":form, "formset":formset,
+                    'anim_heatmap_plot_data':anim_heatmap_plot_data,
+                    'anim_3d_plot_data':anim_3d_plot_data,
+                    'anim_lines_plot_data':anim_lines_plot_data,
+                    'anim_rgb_plot_data':anim_rgb_plot_data,
+                           }
     else:
         form = FourierDiff()
         WavelengthIntensityFormSet = formset_factory(WavelengthIntensityForm, extra=1)
@@ -540,6 +381,76 @@ def home(request):
         context = {'form': form,'formset':formset}
 
     return render(request, 'fourieroptics/home.html', context)
+
+
+def result(request):
+    # Retrieve session data using the session_id
+    #session_key = f'simulation_data_{session_id}'
+    session_data = request.session.get('simulation_data', {})
+    
+    if "save_simu" in request.POST:
+        title = request.POST.get('title')
+        visibility = request.POST.get('visibility')
+        
+        # Extract all necessary variables from session_data
+        aperture_type = session_data.get('aperture_type')
+        
+        wavelengths = session_data.get('wavelengths')
+        intensities = session_data.get('intensities')
+        number_of_slits = session_data.get('number_of_slits')
+        distance_between_slits = session_data.get('distance_between_slits')
+        slit_width = session_data.get('slit_width')
+        slit_height = session_data.get('slit_height')
+        aperture_radius = session_data.get('aperture_radius')
+        add_lens = session_data.get('add_lens')
+        distance_lens_to_aperture = session_data.get('distance_lens_to_aperture')
+        focal_length = session_data.get('focal_length')
+        distance_screen_to_aperture = session_data.get('distance_screen_to_aperture')
+        screen_width = session_data.get('screen_width')
+        resolution = session_data.get('resolution')
+        animation_frames = session_data.get('animation_frames')
+        anim_heatmap_plot_data = session_data.get('anim_heatmap_plot_data')
+        anim_3d_plot_data = session_data.get('anim_3d_plot_data')
+        anim_lines_plot_data = session_data.get('anim_lines_plot_data')
+        anim_rgb_plot_data = session_data.get('anim_rgb_plot_data')
+
+        # Create a new FourierOptics object and save it
+        simulation_result = FourierOptics.objects.create(
+            title=title,
+            visibility=visibility,
+            created_by=request.user,
+            aperture_type=aperture_type,
+            wavelengths = wavelengths,
+            intensities = intensities,
+            number_of_slits=number_of_slits,
+            distance_between_slits=distance_between_slits,
+            slit_width=slit_width,
+            slit_height=slit_height,
+            aperture_radius=aperture_radius,
+            add_lens=add_lens,
+            distance_lens_to_aperture=distance_lens_to_aperture,
+            focal_length=focal_length,
+            distance_screen_to_aperture=distance_screen_to_aperture,
+            screen_width=screen_width,
+            resolution=resolution,
+            animation_frames=animation_frames,
+            anim_heatmap_plot_data=anim_heatmap_plot_data,
+            anim_3d_plot_data=anim_3d_plot_data,
+            anim_lines_plot_data=anim_lines_plot_data,
+            anim_rgb_plot_data=anim_rgb_plot_data
+        )
+        
+        simulation_result.save()
+        
+        # Redirect to the result page after saving
+        return redirect(simulation_result.get_absolute_url())
+    
+    # If not saving, simply render the results page with session data
+    context = {**session_data, 'lightsource':zip(session_data.get('wavelengths'),session_data.get('intensities'))}
+    return render(request, 'fourieroptics/result.html', context)
+
+
+
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.http import JsonResponse

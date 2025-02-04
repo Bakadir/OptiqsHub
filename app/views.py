@@ -25,13 +25,35 @@ from django.shortcuts import render
 from django.http import Http404
 from .models import FourierOptics , Profile
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+def contact(request):
+    
+    
+    if request.method == 'POST':
+        # Process the form data if the request method is POST
+        name = request.POST.get('name', '')
+        email = request.POST.get('email', '')
+        subject = request.POST.get('subject', '')
+        message = request.POST.get('message', '')
+      
+        if name!="" and email != "" and message!="":
+            send_mail(
+                'Subject: OptiqsHub New Contact Form Submission',
+                f'Name: {name}\nsubject: {subject}\nEmail: {email}\nMessage: {message}',
+                'optiqshub@gmail.com',  # Sender's email
+                ["bakadir.oussama@gmail.com"],  # List of recipient emails
+                fail_silently=False,
+            )
+            return HttpResponse('Thank you for your message! We will get back to you soon.')
+    
+    return render(request, 'app/contact.html')
 
 def view_simulation(request, username, title):
     simulation_result = get_object_or_404(FourierOptics, created_by__profile__slug=username, title__iexact=title)
     
     return render(request, 'app/fourieroptics.html', 
-                      {'form': simulation_result,
-                    'wavelengths_intensities':zip(simulation_result.wavelengths,simulation_result.intensities)})
+                      {'result': simulation_result,
+                    'lightsource':zip(simulation_result.wavelengths,simulation_result.intensities)})
 
 def account_view(request, slug):
     profile = get_object_or_404(Profile, slug=slug)

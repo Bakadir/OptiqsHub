@@ -29,7 +29,7 @@
                 </a>
              </p>
             <div class="row">
-                <div class="col" style="flex: 0 0 26%; max-width: 26%;">
+                <div class="col-lg-4 justify-content-center align-items-center">
                     <div class="title">
                         Light Source
                     </div>
@@ -56,7 +56,8 @@
                         
                     </div>
                 </div>
-                <div class="col" style="flex: 0 0 74%; max-width: 74%;">
+                <div class="col-lg-8 justify-content-center align-items-center">
+                    <div class="row">
                     <div class="title">
                         Aperture : {{ form.aperture_type }}
                     </div>
@@ -84,194 +85,61 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col" style="flex: 0 0 29.167%; max-width: 29.167%;">
-                    <div class="title">
-                        {{ form.add_lens }} Add Lens
-        
-                    </div>
-                    <div class="table-wrapper">
-                        <table class="table">
-                        
-                            <tr>
-                                <th>Distance Lens to Aperture (cm):</th>
-                                <th>Focal Length (mm)</th>
-                            </tr>
-                            <tr>
-                                <td>{{ form.distance_lens_to_aperture }}</td>
-                                <td>{{ form.focal_length }}</td>
-                            </tr>
-                            
-                        </table>
-                    </div>
-                </div>
-                <div class="col" style="flex: 0 0 29.167%; max-width: 29.167%;">
-                    <div class="title">
-                        Screen
-        
-                    </div>
-                    <div class="table-wrapper">
-                        <table class="table">
-                        
-                            <tr>
-                                <th>Distance Screen to Aperture (cm):</th>
-                                <th>Width (mm)</th>
-                            </tr>
-                            <tr>
-                                <td>{{ form.distance_screen_to_aperture }}</td>
-                                <td>{{ form.screen_width }}</td>
-                            </tr>
-                        
-                        </table>
+                    <div class="row">
+                
+                        <div class="col-lg-6 justify-content-center align-items-center">
+                            <div class="title">
+                                Screen
+                
+                            </div>
+                            <div class="table-wrapper">
+                                <table class="table">
+                                
+                                    <tr>
+                                        <th>Distance Screen to Aperture (cm):</th>
+                                        <th>Width (mm)</th>
+                                    </tr>
+                                    <tr>
+                                        <td>{{ form.distance_screen_to_aperture }}</td>
+                                        <td>{{ form.screen_width }}</td>
+                                    </tr>
+                                
+                                </table>
+                                </div>
                         </div>
-                </div>
-                <div class="col-lg-5 justify-content-center align-items-center">
-                    <div class="title">
-                        Parameters
-        
-                    </div>
-                    <div class="table-wrapper">
-                        <table class="table">
-                        
-                            <tr>
-                                <th rowspan="2">Resolution</th>
-                                <th colspan="2">Animation parameters</th>
-                            </tr>
-                            <tr>
-                                <td>Frames</td>
-                                <td>Framerate</td>
-                            </tr>
-                            <tr>
-                                <td>{{ form.resolution }}</td>
-                                <td>{{ form.animation_frames }}</td>
-                                <td>{{ form.animation_framerate }}</td>
-                            </tr>
-                        
-                        </table>
+                        <div class="col-lg-6 justify-content-center align-items-center">
+                            <div class="title">
+                                Parameters
+                
+                            </div>
+                            <div class="table-wrapper">
+                                <table class="table">
+                                
+                                    <tr>
+                                        <th >Resolution</th>
+                                        <th >Number of Steps</th>
+                                    </tr>
+                                
+                                    <tr>
+                                        <td>{{ form.resolution }}</td>
+                                        <td>{{ form.animation_frames }}</td>
+                                    </tr>
+                                
+                                </table>
+                                </div>
                         </div>
+                    </div>
                 </div>
             </div>
+            
         
-            <div class="row justify-content-center align-items-center">
-                <div class="col-lg-6 justify-content-center align-items-center">
                     <button type="submit" class="btn btn-primary w-100" name="plot_all_optimized">Submit</button>
-                </div>
-                    <div class="col-lg-6 justify-content-center align-items-center">
-                        {% if request.user.is_authenticated %}
-                        <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#userModal">Save</button>
-                        {% else %}
-                        <a type="button" class="btn btn-primary w-100" href="{% url 'app:login' %}">Save</a>
-                        {% endif %}
-                </div>
-            </div>
-            <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <!-- Modal Header -->
-                        <div class="modal-header">
-                            <a class="dropdown-item d-flex align-items-center" href="">
-                                <i class="bi-person smoothscroll me-1"></i>{{ user.username }}
-                            </a>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
+               
             
-                        <!-- Modal Body -->
-                        <div class="modal-body">
-                           
-                                {% csrf_token %}
-                                
-                                <!-- Title Field -->
-                                <div class="mb-3">
-                                    <label for="title" class="form-label">Title</label>
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="title"
-                                        name="title"
-                                        placeholder=""
-                                        required
-                                    >
-                                </div>
-            
-                                <!-- Visibility Choice -->
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="radio"
-                                            name="visibility"
-                                            id="visibilityPublic"
-                                            value="public"
-                                            checked
-                                            style="cursor: pointer;font-size:20px;"
-                                        >
-                                        <label
-                                            class="form-check-label fw-bold"
-                                            for="visibilityPublic"
-                                            
-                                        >
-                                            Public
-                                        </label>
-                                        <p class="text-muted">
-                                            Anyone on the internet can access the saved URL.
-                                        </p>
-                                    </div>
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="radio"
-                                            name="visibility"
-                                            id="visibilityPrivate"
-                                            value="private"
-                                            style="cursor: pointer; font-size:20px;"
-                                        >
-                                        <label
-                                            class="form-check-label fw-bold"
-                                            for="visibilityPrivate"
-                                            
-                                        >
-                                            Private
-                                        </label>
-                                        <p class="text-muted">
-                                            Only you can access the saved URL.
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                
-                                <!-- Save Button -->
-                                <div class="d-grid gap-2 mt-4">
-                                    <button type="submit" id="saveButton" name="save_simu" class="btn btn-primary">
-                                        Save
-                                    </button>
-                                </div>
-                          
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
+        </form>
             <hr>
             <div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
-                {% if animation_saved %}
-                {% comment %} <button type="submit" id="saveButton" name="save_simu">Save Simulation</button>
- {% endcomment %}
-
-                <div class="col-lg-6 mb-4">
-                    <button class="btn btn-primary w-100" onclick="window.location.href='{% url 'fourieroptics:download_animation' %}'">Download RGB Animation</button>
-
-                    <img src="{% static 'fourieroptics/rgb_animation_optimized.gif' %}" alt="Fourier Optics Animation" class="img-fluid">
-
                 
-                </div>
-                <div class="col-lg-6 mb-4">
-                    <button class="btn btn-primary w-100" onclick="window.location.href='{% url 'fourieroptics:download_animation_intensity' %}'">Download Intensity Animation</button>
-
-                    <img src="{% static 'fourieroptics/intensity_animation_optimized.gif' %}" alt="Fourier Optics Animation" class="img-fluid">
-                </div>
-        
-                {% endif %}
                 <div class="col-lg-6 mb-4">
                     <div id="rgb-plot"></div>
                     <script>
@@ -314,8 +182,8 @@
                 </div>
 
             </div>
-            
-        </form>
+        
+        
     </div>
 </section>
 

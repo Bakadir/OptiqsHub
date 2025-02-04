@@ -83,26 +83,22 @@
                         <li><a href="{% url 'polarization:muellercalculus' %}">Mueller Calculus</a></li>
                         </ul>
                     </li>
-                    <li class="dropdown">
+                    {% comment %} <li class="dropdown">
                         <a href=""><span>Interferometers</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                         <ul>
                             <li><a href="{% url 'interferometers:michelson_interferometer' %}">Michelson Interferometer</a></li>
                             <li><a href="{% url 'interferometers:fabry_perot_interferometer' %}">Fabry–Pérot Interferometer</a></li>
                             <li><a href="{% url 'interferometers:mach_zehnder_interferometer' %}">Mach–Zehnder Interferometer</a></li>
                         </ul>
-                    </li>
+                    </li> {% endcomment %}
                     
 
                 </ul>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
-            {% if request.user.is_authenticated %}
-            <a class="btn-getstarted me-3" href="{% url 'app:account' user.profile.slug %}"><i class="bi-person smoothscroll me-1"></i>{{ user.username }}</a>
-            <a href="{% url 'app:logout' %}" >Logout</a>
-            {% else %}
-            <a class="btn-getstarted" href="{% url 'app:login' %}"><i class="bi-person smoothscroll me-1"></i>Account</a>
+           
+            <a class="btn-getstarted btn btn-primary" href="{% url 'app:contact' %}"><i class="bi-envelope  smoothscroll me-1"></i>Contact</a>
 
-            {% endif %}
            
         </div>
     </header>

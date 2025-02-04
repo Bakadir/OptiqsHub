@@ -34,7 +34,7 @@ class FiberParametersForm(forms.Form):
     Length_a = forms.FloatField(required=False,initial=1)
     Length_b = forms.FloatField(required=False,initial=3)
 
-    nsteps = forms.IntegerField(required=False,initial=400)
+    nsteps = forms.IntegerField(required=False,initial=100)
 
     gamma_a = forms.FloatField(required=False,initial=10)
     gamma_b = forms.FloatField(required=False,initial=-3)

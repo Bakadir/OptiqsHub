@@ -70,6 +70,8 @@ def home(request):
             t = np.linspace(0, N * dt, N)
             t = t - np.mean(t)
 
+            f=getFreqRangeFromTime(t)
+
             if pulse_type == "gaussian":
                 testPulse=GaussianPulse(t, amplitude, duration, offset, chirp, order,testCarrierFreq)
             elif pulse_type=="sech":
@@ -114,13 +116,8 @@ def home(request):
             order = form1.cleaned_data.get('order')
             testCarrierFreq = form1.cleaned_data.get('testCarrierFreq')
 
-            dt = time_resolution_1 * 10 ** time_resolution_2
-            duration = duration_k*dt
-            t = np.linspace(0, N * dt, N)
-            t = t - np.mean(t)
-
             
-            f=getFreqRangeFromTime(t)
+            
 
             if amplitude_bool==True:
                 amplitude_charac = form3.cleaned_data.get('amplitude_charac')
@@ -180,17 +177,14 @@ def home(request):
             #return pulseMatrix, spectrumMatrix
             
            
-            testPulse0=np.copy(pulseMatrix[0,:])
-            testSpectrum0=np.copy(spectrumMatrix[0,:])
-            testPulseFinal=np.copy(pulseMatrix[-1,:])
-            testSpectrumFinal=np.copy(spectrumMatrix[-1,:])
             
             if "plot_all" in request.POST:
                 frames_lines = []
                 frames_spectrum = []
                 frames_chirp = []
-                i=0  
                 for frame in range(nsteps):
+                    i=frame 
+                   
                     frame_data_lines = [
                             go.Scatter(x=t.tolist(), y=getPower(pulseMatrix[i,:]).tolist(), mode='lines', name=str(frame)),
                         ]
@@ -210,10 +204,7 @@ def home(request):
                     
                     frames_chirp.append(go.Frame(data=frame_data_chirp, name=str(frame)))
 
-
-
-                    i=i+1
-
+               
 
                 screen_distances = np.linspace(0, Length, nsteps)
                 slider_steps = [
@@ -228,11 +219,15 @@ def home(request):
                         data=frames_lines[0].data,
                         layout=go.Layout(
                             title="Pulse Evolution",
-                            xaxis={"title": "Time [s]"},
+                            xaxis={
+                                "title": "Time [s]",
+                                "range": [-duration*1.5,duration*1.5],  # Fixed y-axis range based on the maximum power
+                            },
                             yaxis={
                                 "title": "Power [W]",
                                 "range": [0, max_power*1.1],  # Fixed y-axis range based on the maximum power
                             },
+                            
                             width=500,
                             height=500,
                             sliders=[{
@@ -256,7 +251,10 @@ def home(request):
                         data=frames_spectrum[0].data,
                         layout=go.Layout(
                             title="Spectrum Evolution",
-                            xaxis={"title":"Freq. [Hz]"},
+                            xaxis={
+                                "title": "Freq. [Hz]",
+                                "range": [-(1/duration)*2.5,(1/duration)*2.5],  # Fixed y-axis range based on the maximum power
+                            },
                             yaxis={
                                 "title": "PSD [W/Hz]",
                                 "range": [0, max_power_spectrum*1.1],  # Fixed y-axis range based on the maximum power
@@ -285,7 +283,10 @@ def home(request):
                         data=frames_chirp[0].data,
                         layout=go.Layout(
                             title="Chirp Evolution",
-                            xaxis={"title":"Time [s]"},
+                            xaxis={
+                                "title": "Time [s]",
+                                  # Fixed y-axis range based on the maximum power
+                            },
                             yaxis={
                                 "title": "Chirp [Hz]",
                                 "range": [-max_power_chirp*1.1, max_power_chirp*1.1],  # Fixed y-axis range based on the maximum power
@@ -308,7 +309,7 @@ def home(request):
                     )
                 anim_lines_plot_data_chirp = pio.to_json(fig_chirp)
                 
-                points = np.array( [t*1e12 ,  getPower(pulseMatrix[nsteps-1,:])   ]  ).T.reshape(-1,1,2)
+                """ points = np.array( [t*1e12 ,  getPower(pulseMatrix[nsteps-1,:])   ]  ).T.reshape(-1,1,2)
                 segments = np.concatenate([points[0:-1],points[1:]],axis=1)
 
                 colors = ["red" ,"gray", "blue"]
@@ -357,16 +358,16 @@ def home(request):
                 ani.save('static/NLSE/pulse_animation.gif',writer=writer)
                 plt.clf()
                 shutil.copy('static/NLSE/pulse_animation.gif', 'staticfiles/NLSE/pulse_animation.gif')
-                
+                 """
                 #context = {"form":form, "form1":form1,"form3":form3,'animation':True}
 
-                gif_file_path = 'static/NLSE/pulse_animation.gif'
+                #gif_file_path = 'static/NLSE/pulse_animation.gif'
                
                 context = {"form":form, "form1":form1,"form3":form3,
                            'anim_lines_plot_data':anim_lines_plot_data,
                            'anim_lines_plot_data_spectrum':anim_lines_plot_data_spectrum,
                            'anim_lines_plot_data_chirp':anim_lines_plot_data_chirp,
-                           "animation":True,
+                           
                            }
 
 

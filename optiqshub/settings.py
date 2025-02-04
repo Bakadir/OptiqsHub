@@ -80,9 +80,14 @@ WSGI_APPLICATION = 'optiqshub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
@@ -91,7 +96,7 @@ DATABASES = {
         'HOST': 'junction.proxy.rlwy.net',
         'PORT': '20582',
     }
-}
+} """
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -122,6 +127,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -130,7 +138,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'optiqshub@gmail.com ' # Replace with your Gmail email address
 EMAIL_HOST_PASSWORD = 'tbes zaac kbhp lwdq'
 
-AWS_ACCESS_KEY_ID = 'AKIATQPD7QTFLD7MFIF6'
+""" AWS_ACCESS_KEY_ID = 'AKIATQPD7QTFLD7MFIF6'
 AWS_SECRET_ACCESS_KEY = 'qgA4r8+Iz3zcqlIyL3pkRikx4BAjpq0CTKrf1usk'
 AWS_STORAGE_BUCKET_NAME = 'optiqshub' 
 
@@ -156,18 +164,18 @@ MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+ """
 
 
 
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# STATIC_URL = 'static/'
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static'),
-# ]
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

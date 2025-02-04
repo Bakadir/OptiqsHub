@@ -1,18 +1,30 @@
 from django import forms
 
 class MichelsonInterferometerForm(forms.Form):
-    wavelength = forms.FloatField(initial=632.8)  # Wavelength in nm (HeNe laser)
-    intensity = forms.FloatField(initial=1.0)  # Intensity
-    grid_size = forms.FloatField(initial=15)  # Grid size in mm
-    resolution = forms.IntegerField(initial=500)  # Grid resolution (NxN)
-    arm1_length = forms.FloatField(initial=8)  # Length of arm 1 in cm
-    arm2_length = forms.FloatField(initial=7)  # Length of arm 2 in cm
-    laser_to_beamsplitter = forms.FloatField(initial=3)  # Laser to beamsplitter distance (cm)
-    beamsplitter_to_screen = forms.FloatField(initial=5)  # Beamsplitter to screen distance (cm)
-    tilt_x = forms.FloatField(initial=0.5)  # Mirror 1 tilt (mrad)
-    tilt_y = forms.FloatField(initial=0.0)  # Mirror 2 tilt (mrad)
+    # Laser parameters
+    wavelength = forms.FloatField(initial=632.8)  # He-Ne laser (nm)
+    laser_radius = forms.FloatField(initial=1.0)  # Beam radius (mm)
+
+    # Grid parameters
+    grid_size = forms.FloatField(initial=20)  # Grid size (mm)
+    resolution = forms.IntegerField(initial=512)  # Resolution (N x N)
+
+    # Beamsplitter parameters
+    beamsplitter_reflection = forms.FloatField(initial=0.5)  # Reflection coefficient (0-1)
+    laser_to_beamsplitter = forms.FloatField(initial=5)  # Distance (cm)
+
+    # Arm lengths (ensure a path difference)
+    arm1_length = forms.FloatField(initial=10.0)  # Arm 1 length (cm)
+    arm2_length = forms.FloatField(initial=10.1)  # Arm 2 length (cm)
+
+    # Screen distance
+    beamsplitter_to_screen = forms.FloatField(initial=20)  # Distance (cm)
+
+    # Mirror tilt (non-zero tilt for fringes)
+    tilt_x = forms.FloatField(initial=1.0)  # Tilt in x (mrad)
+    tilt_y = forms.FloatField(initial=0.0)  # Tilt in y (mrad)
     
-    # Compensating Plate Parameters
+"""     # Compensating Plate Parameters
     add_plate=forms.BooleanField(required=False,initial=False)
 
     plate_thickness = forms.FloatField(initial=0.1, required=False)  # Thickness of the compensating plate in cm
@@ -23,4 +35,4 @@ class MichelsonInterferometerForm(forms.Form):
     # Tilt Angle (in mrad)
     plate_tilt = forms.FloatField(initial=0.0)  # Tilt angle of the compensating plate in mrad
     # Distance between Plate and Mirror 1
-    plate_to_mirror1 = forms.FloatField(initial=5.0)  # Distance between plate and Mirror 1 (cm)
+    plate_to_mirror1 = forms.FloatField(initial=5.0)  # Distance between plate and Mirror 1 (cm) """

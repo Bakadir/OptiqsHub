@@ -59,11 +59,9 @@ class FourierOptics(models.Model):
 
     distance_screen_to_aperture = models.FloatField()  
     screen_width = models.FloatField()  
-    screen_height = models.FloatField()  
 
     resolution = models.IntegerField()
     animation_frames = models.IntegerField()
-    animation_framerate = models.IntegerField()
 
 
     anim_heatmap_plot_data = models.JSONField()
@@ -73,7 +71,7 @@ class FourierOptics(models.Model):
 
     #rgb_animation_path = models.CharField(max_length=255, null=True, blank=True)
     #intensity_animation_path = models.CharField(max_length=255, null=True, blank=True)
-
+    """ 
     rgb_animation_path = models.FileField(upload_to='animations/', null=True, blank=True)
     intensity_animation_path = models.FileField(upload_to='animations/', null=True, blank=True)
 
@@ -86,7 +84,7 @@ class FourierOptics(models.Model):
     def intensity_animation_path_url(self):
         if self.intensity_animation_path and hasattr(self.intensity_animation_path, 'url'):
             return self.intensity_animation_path.url
-        
+         """
     def get_absolute_url(self):
         # This will generate a URL like /fourieroptics/username/title/
         return f"/{self.created_by.profile.slug}/{slugify(self.title)}/"

@@ -1,0 +1,258 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+{% load static %}
+
+
+<title>{% block title %}Fourier optics{% endblock %}</title>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+<section id="starter-section" class="starter-section section">
+    <div class="container" >
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+            
+            <div >
+                <input type="text" class="form-control" id="title" name="title"  placeholder="Title" required>
+            </div>
+          
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="visibility" id="visibilityPublic" value="public" checked
+                        style="cursor: pointer;font-size:20px;"
+                    >
+                    <label
+                        class="form-check-label fw-bold"
+                        for="visibilityPublic"
+                        
+                    >
+                        Public
+                    </label>
+                    <p class="text-muted">
+                        Anyone on the internet can access the saved URL.
+                    </p>
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="visibility"
+                        id="visibilityPrivate"
+                        value="private"
+                        style="cursor: pointer; font-size:20px;"
+                    >
+                    <label
+                        class="form-check-label fw-bold"
+                        for="visibilityPrivate"
+                        
+                    >
+                        Private
+                    </label>
+                    <p class="text-muted">
+                        Only you can access the saved URL.
+                    </p>
+                </div>
+          
+            <button type="submit" name="save_simu" class="btn btn-primary d-flex align-items-center" formtarget="_blank">
+                <i class="bi bi-save me-2"></i> Save
+            </button>
+             
+        </div>
+        
+        
+            <div class="row">
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    <div class="title">
+                        Light Source
+                    </div>
+              
+                    <div class="table-wrapper">
+                    
+                        <table class="table">
+                            <tr>
+                                <th>Wavelength (nm)</th>
+                                <th>Intensity</th>
+                            </tr>
+                            {% for wavelength ,intensity  in lightsource %}
+                            <tr>
+                                <td>{{ wavelength }}</td>
+                                <td>{{ intensity }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                            
+                    </div>
+               
+                </div>
+                <div class="col-lg-8 justify-content-center align-items-center">
+                    <div class="title">
+                        Aperture : {{ aperture_type }}
+                    </div>
+                    {% if aperture_type == 'N-Slit' %}
+
+
+                    <div class="table-wrapper">
+                        
+                        <table class="table">
+                            <tr>
+                                <th colspan="4">N Slit</th>
+                            </tr>
+                            <tr>
+                                <td>Number Of Slits</td>
+                                <td>Width (mm)</td>
+                                <td>Height (mm)</td>
+                                <td>Distance between slits (mm):</td>
+                            </tr>
+                            <tr>
+                                <td><div class="form-container">{{ number_of_slits }}</div></td>
+                                <td><div class="form-container">{{ slit_width }}</div></td>
+                                <td><div class="form-container">{{ slit_height }}</div></td>
+                                <td><div class="form-container">{{ distance_between_slits }}</div></td>
+                            </tr>
+                        </table>
+                    </div>
+                    {% elif aperture_type == 'Circular' %}
+                    <div class="table-wrapper">
+                        
+                        <table class="table">
+                            <tr>
+                                <th>Circular</th>
+                            </tr>
+                            <tr>
+                                <td>Aperture Radius (mm)</td>
+                            </tr>
+                            <tr>
+                                <td><div class="form-container">{{ aperture_radius }}</div></td>
+                            </tr>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    {% if add_lens %}
+                    <div class="title">
+                        {{ add_lens }} Add Lens
+        
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                        
+                            <tr>
+                                <th>Distance Lens to Aperture (cm):</th>
+                                <th>Focal Length (mm)</th>
+                            </tr>
+                            <tr>
+                                <td>{{ distance_lens_to_aperture }}</td>
+                                <td>{{ focal_length }}</td>
+                            </tr>
+                            
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    <div class="title">
+                        Screen
+        
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                        
+                            <tr>
+                                <th>Distance Screen to Aperture (cm):</th>
+                                <th>Width (mm)</th>
+                            </tr>
+                            <tr>
+                                <td>{{ distance_screen_to_aperture }}</td>
+                                <td>{{ screen_width }}</td>
+                            </tr>
+                        
+                        </table>
+                        </div>
+                </div>
+                <div class="col-lg-4 justify-content-center align-items-center">
+                    <div class="title">
+                        Parameters
+        
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                        
+                            <tr>
+                                <th >Resolution</th>
+                                <th >Number of Steps</th>
+                            </tr>
+                        
+                            <tr>
+                                <td>{{ resolution }}</td>
+                                <td>{{ animation_frames }}</td>
+                            </tr>
+                        
+                        </table>
+                        </div>
+                </div>
+            </div>
+        
+            
+                
+            
+        
+            <hr>
+            <div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
+                
+                <div class="col-lg-6 mb-4">
+                    <div id="rgb-plot"></div>
+                    <script>
+                        var plot_data = {{ anim_rgb_plot_data|safe }};
+                        Plotly.newPlot('rgb-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('rgb-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+
+                    <div id="heatmap-plot"></div>
+                    <script>
+                        var plot_data = {{ anim_heatmap_plot_data|safe }};
+                        Plotly.newPlot('heatmap-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('heatmap-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div id="3d-plot"></div>
+                    <script>
+                        var plot_data = {{ anim_3d_plot_data|safe }};
+                        Plotly.newPlot('3d-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('3d-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div id="lines-plot"></div>
+                    <script>
+                        var plot_data = {{ anim_lines_plot_data|safe }};
+                        Plotly.newPlot('lines-plot', plot_data.data, plot_data.layout).then(function() {
+                            Plotly.addFrames('lines-plot', plot_data.frames);
+                        });
+                    </script>
+                </div>
+
+            </div>
+        </form>
+        
+    </div>
+</section>
+
+{% endblock %}

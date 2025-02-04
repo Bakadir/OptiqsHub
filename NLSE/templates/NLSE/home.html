@@ -238,9 +238,9 @@
                 </div> {% endcomment %}
             </div>
                 
-                <div class="row">
-                    
-                    <div class="col-lg-4 mb-4">
+            <div class="row justify-content-center align-items-start mt-4" style="overflow-x: auto;">
+                
+                <div class="col-lg-6 mb-4">
                         
 
                             <div id="lines-plot"></div>
@@ -251,7 +251,7 @@
                                 });
                             </script>
                         </div>   
-                    <div class="col-lg-4 mb-4">
+                        <div class="col-lg-6 mb-4">
 
                         <div id="speclines-plot"></div>
                         <script>
@@ -261,7 +261,7 @@
                             });
                         </script>
                     </div>
-                    <div class="col-lg-4 mb-4">
+                    <div class="col-lg-6 mb-4">
                         <div id="chirplines-plot"></div>
                         <script>
                             var plot_data = {{ anim_lines_plot_data_chirp|safe }};
@@ -270,17 +270,7 @@
                             });
                         </script>
                     </div>
-                    <div class="col-lg-12 mb-4">
-                    {% if animation %}
-                        
-                        <div align="center">
-                            <img src="{% static 'NLSE/pulse_animation.gif' %}" alt="Animation" >
-                        </div>
-                        <div >
-                            <button type="submit" id="plots" class="btn btn-outline-secondary" formmethod="post" name="downloadgif">Download gif</button>
-                        </div>
-                    {% endif %}
-                    </div>
+                    
                     
                 </div>
          
