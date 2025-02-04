@@ -11,7 +11,6 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django import forms
 
-from app.models import *
 from .forms import *
 
 def download_animation(request):
@@ -382,72 +381,6 @@ def home(request):
 
     return render(request, 'fourieroptics/home.html', context)
 
-
-def result(request):
-    # Retrieve session data using the session_id
-    #session_key = f'simulation_data_{session_id}'
-    session_data = request.session.get('simulation_data', {})
-    
-    if "save_simu" in request.POST:
-        title = request.POST.get('title')
-        visibility = request.POST.get('visibility')
-        
-        # Extract all necessary variables from session_data
-        aperture_type = session_data.get('aperture_type')
-        
-        wavelengths = session_data.get('wavelengths')
-        intensities = session_data.get('intensities')
-        number_of_slits = session_data.get('number_of_slits')
-        distance_between_slits = session_data.get('distance_between_slits')
-        slit_width = session_data.get('slit_width')
-        slit_height = session_data.get('slit_height')
-        aperture_radius = session_data.get('aperture_radius')
-        add_lens = session_data.get('add_lens')
-        distance_lens_to_aperture = session_data.get('distance_lens_to_aperture')
-        focal_length = session_data.get('focal_length')
-        distance_screen_to_aperture = session_data.get('distance_screen_to_aperture')
-        screen_width = session_data.get('screen_width')
-        resolution = session_data.get('resolution')
-        animation_frames = session_data.get('animation_frames')
-        anim_heatmap_plot_data = session_data.get('anim_heatmap_plot_data')
-        anim_3d_plot_data = session_data.get('anim_3d_plot_data')
-        anim_lines_plot_data = session_data.get('anim_lines_plot_data')
-        anim_rgb_plot_data = session_data.get('anim_rgb_plot_data')
-
-        # Create a new FourierOptics object and save it
-        simulation_result = FourierOptics.objects.create(
-            title=title,
-            visibility=visibility,
-            created_by=request.user,
-            aperture_type=aperture_type,
-            wavelengths = wavelengths,
-            intensities = intensities,
-            number_of_slits=number_of_slits,
-            distance_between_slits=distance_between_slits,
-            slit_width=slit_width,
-            slit_height=slit_height,
-            aperture_radius=aperture_radius,
-            add_lens=add_lens,
-            distance_lens_to_aperture=distance_lens_to_aperture,
-            focal_length=focal_length,
-            distance_screen_to_aperture=distance_screen_to_aperture,
-            screen_width=screen_width,
-            resolution=resolution,
-            animation_frames=animation_frames,
-            anim_heatmap_plot_data=anim_heatmap_plot_data,
-            anim_3d_plot_data=anim_3d_plot_data,
-            anim_lines_plot_data=anim_lines_plot_data,
-            anim_rgb_plot_data=anim_rgb_plot_data
-        )
-        
-        simulation_result.save()
-        
-        # Redirect to the result page after saving
-        return redirect(simulation_result.get_absolute_url())
-    
-    # If not saving, simply render the results page with session data
-    context = {**session_data, 'lightsource':zip(session_data.get('wavelengths'),session_data.get('intensities'))}
-    return render(request, 'fourieroptics/result.html', context)
 
 
 

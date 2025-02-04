@@ -22,9 +22,6 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 import random
 from django.shortcuts import render
-from django.http import Http404
-from .models import FourierOptics , Profile
-from django.contrib.auth.models import User
 from django.http import HttpResponse
 def contact(request):
     
@@ -48,126 +45,7 @@ def contact(request):
     
     return render(request, 'app/contact.html')
 
-def view_simulation(request, username, title):
-    simulation_result = get_object_or_404(FourierOptics, created_by__profile__slug=username, title__iexact=title)
-    
-    return render(request, 'app/fourieroptics.html', 
-                      {'result': simulation_result,
-                    'lightsource':zip(simulation_result.wavelengths,simulation_result.intensities)})
 
-def account_view(request, slug):
-    profile = get_object_or_404(Profile, slug=slug)
-    user = profile.user
-    simulations = FourierOptics.objects.filter(created_by=user)
-    context = {
-        'user': user,
-       'simulations': simulations,
-    }
-    return render(request, 'app/account.html', context)
-
-
-def logout_view(request):
-	logout(request)
-	return redirect("app:home")
-
-def forgot_password(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        user = User.objects.filter(email=email).first()
-        if user:
-            # Generate password reset token
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            
-            # Construct the password reset link (change 'reset_link' to your actual reset URL)
-            reset_link = f"https://optiqshub.com/reset_password/{uid}/{token}/"
-            subject = 'Optiqs Hub Reset Your Password'
-            message = f"""
-            <html>
-                <body>
-                <p>Hey {user.username},</p>
-                <p>You can reset your password by clicking the link below:</p>
-                <p><a href="{reset_link}" >Reset Your Password</a></p>
-                <br>
-                <p>Best regards,</p>
-                <p>The Bjerseys Team</p>
-            </body>
-            </html>
-            """
-
-            send_mail(
-            subject,
-            '',  # Leave the plain text part empty as we're using HTML email
-            'optiqshub@gmail.com',
-            [email],
-            html_message=message  # Pass the HTML message here
-            )
-            
-            return render(request,'app/forgot_password.html',{'email_sent': True,'password_reset':True})
-        else:
-            # Handle case where email is not found in the database
-            return render(request,'app/forgot_password.html', {'message': 'Email not found','password_reset':True})
-
-    return render(request, 'app/forgot_password.html')
-
-def signup(request):
-    if request.method == "POST":
-
-        if "signup" in request.POST:
-            username_signup = request.POST["username_signup"]
-            email_signup = request.POST["email_signup"]
-            password_signup = request.POST["password_signup"]
-            if User.objects.filter(username=username_signup).exists(): 
-                context = {'message': "Username already exists. Please use a different username.","signup":True}
-                return render(request, 'app/signup.html', context)
-            
-            elif User.objects.filter(email=email_signup).exists(): 
-                context = {'message': "Email already exists. Please use a different email.","signup":True}
-                return render(request, 'app/signup.html', context)
-            else:
-                user = User.objects.create_user(username=username_signup, email=email_signup, password=password_signup)
-                profile, created = Profile.objects.get_or_create(user=user)
-                profile.save()
-
-                
-            user = authenticate(request, username=username_signup, email=email_signup, password=password_signup)
-            login(request, user)
-
-            return redirect('app:home')
-    
-
-    return render(request, 'app/signup.html')
-
-def login_view(request):
-    if request.method == "POST":
-        if "login" in request.POST:
-            email_username = request.POST["email_username"]
-            password = request.POST["password"]
-            try:
-                try:
-                    user = User.objects.get(email=email_username)
-                    email = user.email
-                    username = user.username
-                except:
-                    user = User.objects.get(username=email_username)
-                    email = user.email
-                    username = user.username
-            except User.DoesNotExist:
-                username = None
-            
-
-            try:
-                user = authenticate(request, username=username, email=email, password=password)
-                if user is not None:
-                    login(request, user)
-                    return redirect('app:home')
-            except:
-                context = {'message': 'Invalid credentials'}
-                return render(request, 'app/login.html', context)
-
-
-    return render(request, 'app/login.html')
-# Create your views here.
 def home(request):
     # email_content = """
     #         Hello,

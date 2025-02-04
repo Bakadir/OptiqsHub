@@ -6,15 +6,9 @@ from django.conf.urls.static import static
 app_name = 'app'
 urlpatterns = [
     path('', views.home, name='home'),
-    path('refractiveindex_data', views.refractiveindex_data, name='refractiveindex_data'),
-    path('login/', views.login_view, name='login'),
-    path('signup/', views.signup, name='signup'),
-    path('forgot_password/', views.forgot_password, name='forgot_password'),
+   
     path('contact/', views.contact, name='contact'),
-    path('logout/', views.logout_view, name='logout'),
-    path('<slug:slug>/', views.account_view, name='account'),
-
-    path('<str:username>/<slug:title>/', views.view_simulation, name='view_simulation'),
+   
     
 ]
 
