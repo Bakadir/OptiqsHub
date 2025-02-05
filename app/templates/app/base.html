@@ -41,6 +41,7 @@
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 </head>
 
@@ -91,8 +92,19 @@
                             <li><a href="{% url 'interferometers:mach_zehnder_interferometer' %}">Mach–Zehnder Interferometer</a></li>
                         </ul>
                     </li> {% endcomment %}
-                    <li><a href="{% url 'app:contact' %}" target="_blank">Contact<br></a></li>
-                    <li><a href="https://github.com/Bakadir/OptiqsHub" target="_blank">Github<br></a></li>
+                    <li>
+                        <a href="https://github.com/Bakadir/OptiqsHub" target="_blank">
+                            <i class="fab fa-github me-1" style="font-size:16px;"></i>Github
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:optiqshub@gmail.com">
+                            <i class="fas fa-envelope me-1" style="font-size:16px;"></i>optiqshub@gmail.com
+                        </a>
+                    </li>
+                    
+                    
+                    
                 </ul>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list "></i>
             </nav>
