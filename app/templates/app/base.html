@@ -33,10 +33,10 @@
     <!-- Vendor CSS Files -->
     <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+    {% comment %} <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
     <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
     <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
-
+ {% endcomment %}
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -91,14 +91,13 @@
                             <li><a href="{% url 'interferometers:mach_zehnder_interferometer' %}">Mach–Zehnder Interferometer</a></li>
                         </ul>
                     </li> {% endcomment %}
-                    
-
+                    <li><a href="{% url 'app:contact' %}" target="_blank">Contact<br></a></li>
+                    <li><a href="https://github.com/Bakadir/OptiqsHub" target="_blank">Github<br></a></li>
                 </ul>
-                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+                <i class="mobile-nav-toggle d-xl-none bi bi-list "></i>
             </nav>
            
-            <a class="btn-getstarted btn btn-primary" href="{% url 'app:contact' %}"><i class="bi-envelope  smoothscroll me-1"></i>Contact</a>
-
+            
            
         </div>
     </header>
