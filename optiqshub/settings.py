@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'thinfilms',
     'fourieroptics',
     'interferometers',
-    'storages',
+    
 ]
 
 MIDDLEWARE = [
@@ -91,16 +91,6 @@ DATABASES = {
     }
 }
 
-""" DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': 'yaaLAvtDOOhDNgFEwlqAXQtaXDvkpmVz',
-        'HOST': 'junction.proxy.rlwy.net',
-        'PORT': '20582',
-    }
-} """
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
